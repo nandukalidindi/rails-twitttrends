@@ -1,0 +1,107 @@
+<h1> HELLO </h1>
+
+<a href='/auth/twitter?repository_access=true'> Get Token </a> </br></br>
+
+<header>
+
+</header>
+
+<body>
+    <header>
+  <div id="header_content">
+    <h2>The one million tweet map's RIP OFF</h2>
+    <div id="maptimize_power">
+      <img src="https://raw.githubusercontent.com/nandukalidindi/project-screenshots/master/Google_2015_logo.svg.png" class="anim" alt="maptimize" width="147" height="30">
+    </div>
+    <div id="toggle_panel">+</div>
+  </div>
+</header>
+
+<div id="sidebar">
+  <div class="viewport">
+    <div class="overview" style="top: 0px;">
+      <div class="block center first" id="since_block">
+        <h4 style="font-family: 'TitilliumText22LThin', cursive;">Number of tweets loaded</h4>
+        <div id="counter_since">
+          <span class="n"><%= @tweet_count.to_s[-7] || "0" %></span><span class="n"><%= @tweet_count.to_s[-6] || "0" %></span><span class="n"><%= @tweet_count.to_s[-5] || "0" %></span><span class="n"><%= @tweet_count.to_s[-4] || "0" %></span><span class="n"><%= @tweet_count.to_s[-3] || "0" %></span><span class="n"><%= @tweet_count.to_s[-2] || "0" %></span><span class="n"><%= @tweet_count.to_s[-1] || "0" %></span>
+        </div>
+      </div>
+      <div class="block center" id="switch_block">
+        <div class="clear"></div>
+        <div class="clear"></div>
+        <div class="clear"></div>
+        <div id="filter_search">
+          <form action="#" onsubmit="return false">
+            <span></span>
+            <input id="keyword-input" type="text" value="<%= @query %>" name="search" placeholder="keywords filter" data-condition-type="string" data-condition="(text:? OR user.screen_name:*?*)">
+          </form>
+          <div class="clear"></div>
+        </div>
+        <div class="clear"></div>
+        <div id="hashtags">
+          <p class="exemple">10 most popular keywords<br>
+            <span id="popular_tags">
+              <% @keywords.each do |keyword| %>
+                <a href="?search=<%= keyword['key'] %>" > <%= keyword['key'] %> (<%= keyword['doc_count'] %>) </a> &nbsp;&nbsp;&nbsp;
+              <% end %>
+            </span>
+          <div class="clear"></div>
+        </div>
+        <div class="clear"></div>
+        <div class="clear"></div>
+        <div id="hashtags">
+          <p class="exemple">10 most popular hashtags<br>
+            <span id="popular_tags">
+              <% @hashtags.each do |hashtag| %>
+                <a href="?search=<%= hashtag['key'] %>" > <%= hashtag['key'] %> (<%= hashtag['doc_count'] %>) </a> &nbsp;&nbsp;&nbsp;
+              <% end %>
+            </span>
+          <div class="clear"></div>
+        </div>
+        <div class="clear"></div>
+      </div>
+      <div class="block center" id="reset">
+        <p>Click on reset map to see all the tweets in a single blow (reload the page if they seem cluttered)</p>
+        <a href="/" class="button" id="reset">Reset map</a>
+      </div>
+
+      <div class="block center" id="twitter">
+      <iframe id="twitter-widget-0" scrolling="no" frameborder="0" allowtransparency="true" class="twitter-share-button twitter-share-button-rendered twitter-tweet-button" title="Twitter Tweet Button" src="http://platform.twitter.com/widgets/tweet_button.a0ec3119d8db2bc5422f2144c89ad7a9.en.html#dnt=true&amp;id=twitter-widget-0&amp;lang=en&amp;original_referer=http%3A%2F%2Fonemilliontweetmap.com%2F&amp;related=sgruhier&amp;size=m&amp;text=Last%20million%20tweets%20on%20a%20map%20in%20real-time%20%23onemilliontweetmap&amp;time=1489115928736&amp;type=share&amp;url=http%3A%2F%2Fonemilliontweetmap.com%2F&amp;via=maptimize" style="position: static; visibility: visible; width: 61px; height: 20px;"></iframe>
+      <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="map" style='width: 80%; height: 550px;'></div>
+
+<script type="text/javascript">
+  handler = Gmaps.build('Google');
+  var search = gon.search
+  var map = handler.buildMap({ provider: {}, internal: {id: 'map'}}, function(){
+    markers = handler.addMarkers(<%=raw @hash.to_json %>)
+    handler.bounds.extendWith(markers);
+    handler.fitMapToBounds();
+    if(search === "*" || search === null) {
+      handler.map.centerOn({lat: 0, lng: 0});
+      handler.getMap().setZoom(2);
+    }
+  });
+
+  google.maps.event.addListener(map.serviceObject, 'click', function( event ){
+    window.location.replace("?lat=" + event.latLng.lat() + "&lng=" + event.latLng.lng());
+  });
+
+  document.getElementById("keyword-input").addEventListener("keydown", function(event) {
+    if(event.keyCode == 13) {
+      window.location.replace("?search=" + event.target.value);
+    }
+  });
+
+  document.getElementById("hashtag-input").addEventListener("keydown", function(event) {
+    if(event.keyCode == 13) {
+      window.location.replace("?search=" + event.target.value);
+    }
+  });
+  // alert( "Latitude: "+event.latLng.lat()+" "+", longitude: "+event.latLng.lng() );
+</script>
