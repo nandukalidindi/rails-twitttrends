@@ -1,4 +1,5 @@
 require 'twitter'
+require 'pry'
 
 @client = Twitter::Streaming::Client.new do |config|
   config.consumer_key        = "BgB9gfhMrjtSb3ZAy4Zen6u1b"
@@ -8,7 +9,7 @@ require 'twitter'
 end
 
 def filter_tweets
-  @client.filter(locations: "-180, -90, 180, 90") do |object|
+  @client.filter(locations: "-180, -90, 180, 90", lang: "ja") do |object|
     if object.is_a?(Twitter::Tweet)
       unless object.geo.nil?
         location = [object.geo.longitude, object.geo.latitude]
