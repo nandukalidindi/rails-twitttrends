@@ -5,15 +5,21 @@ class TweetsController < ApplicationController
   skip_before_filter  :verify_authenticity_token
 
   def create
-    Rails.logger.info "PARAMS ARE -->>> #{params}"
-    respond_with Tweet.first, location: nil
+    sns_message = JSON.parse(JSON.parse(request.raw_post)["Message"] || "{}")
+    tweet = Tweet.new
+    tweet.text = sns_message["text"]
+    tweet.location = [sns_message["longitude"].to_f, sns_message["latitude"].to_f]
+    keywords = tweet.text.split(" ")
+    hashtags = keywords.select { |x| x[0] == '#' }.map { |y| y[1..-1] }
+    tweet.save!
+
+    respond_with tweet, location: nil
   end
 
   def index
     response.headers['Content-Type'] = 'text/event-stream'
 
     twitter_app = ConnectedApp.where(name: 'twitter').first
-    binding.pry
 
     @client = Twitter::Streaming::Client.new do |config|
       config.consumer_key        = "BgB9gfhMrjtSb3ZAy4Zen6u1b"
@@ -30,6 +36,7 @@ class TweetsController < ApplicationController
     @client.filter(locations: "-180, -90, 180, 90") do |object|
       if object.is_a?(Twitter::Tweet)
         unless object.geo.nil?
+          binding.pry
           location = [object.geo.longitude, object.geo.latitude]
           keywords = object.text.split(" ")
           hashtags = keywords.select { |x| x[0] == '#' }.map { |y| y[1..-1] }
