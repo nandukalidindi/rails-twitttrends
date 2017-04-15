@@ -1,9 +1,19 @@
 class TweetsController < ApplicationController
   include ActionController::Live
+  respond_to :json
+
+  skip_before_filter  :verify_authenticity_token
+
+  def create
+    Rails.logger.info "PARAMS ARE -->>> #{params}"
+    respond_with Tweet.first, location: nil
+  end
+
   def index
     response.headers['Content-Type'] = 'text/event-stream'
 
     twitter_app = ConnectedApp.where(name: 'twitter').first
+    binding.pry
 
     @client = Twitter::Streaming::Client.new do |config|
       config.consumer_key        = "BgB9gfhMrjtSb3ZAy4Zen6u1b"
@@ -12,7 +22,7 @@ class TweetsController < ApplicationController
       config.access_token_secret = twitter_app.token_secret
     end
 
-    filter_tweets
+    # filter_tweets
     response.stream.close
   end
 
