@@ -7,9 +7,10 @@ class TweetsController < ApplicationController
   def create
     sns_message = JSON.parse(JSON.parse(request.raw_post)["Message"] || "{}")
     tweet = Tweet.new
+    tweet_text = sns_message["text"] || ""
     tweet.text = sns_message["text"]
     tweet.location = [sns_message["longitude"].to_f, sns_message["latitude"].to_f]
-    keywords = tweet.text.split(" ")
+    keywords = tweet_text.split(" ")
     hashtags = keywords.select { |x| x[0] == '#' }.map { |y| y[1..-1] }
     tweet.save!
 
@@ -31,25 +32,4 @@ class TweetsController < ApplicationController
     # filter_tweets
     response.stream.close
   end
-
-  def filter_tweets
-    @client.filter(locations: "-180, -90, 180, 90") do |object|
-      if object.is_a?(Twitter::Tweet)
-        unless object.geo.nil?
-          binding.pry
-          location = [object.geo.longitude, object.geo.latitude]
-          keywords = object.text.split(" ")
-          hashtags = keywords.select { |x| x[0] == '#' }.map { |y| y[1..-1] }
-          Tweet.create(text: object.text, location: location, keywords: keywords, hashtags: hashtags)
-          response.stream.write "Tweeted #{object.text} at location #{location}. COUNT: #{Tweet.all.count}\n\n"
-          sleep 0.5
-        end
-      end
-    end
-  rescue EOFError => e
-    response.stream.write "RETRYING FOR CONNECTION. PLEASE WAIT ...\n\n\n\n\n\n"
-    sleep 2
-    retry
-  end
-
 end
