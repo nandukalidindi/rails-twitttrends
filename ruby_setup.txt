@@ -1,0 +1,18 @@
+\curl -sSL https://get.rvm.io | bash
+
+# Start RVM / SSH into the machine again
+
+rvm install 2.2
+
+------------------------------------------------------------------------
+------------------------ Producer Machine ------------------------
+------------------------------------------------------------------------
+gem install ruby-kafka
+gem install twitter
+
+------------------------------------------------------------------------
+------------------------ Consumer Machine ------------------------
+------------------------------------------------------------------------
+gem install ruby-kafka
+gem install alchemy-api-rb
+gem install aws-sdk

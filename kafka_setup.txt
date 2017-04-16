@@ -1,9 +1,22 @@
-bin/zookeeper-server-start.sh config/zookeeper.properties
-
-bin/kafka-server-start.sh config/server.properties
+wget http://mirror.fibergrid.in/apache/kafka/0.10.0.1/kafka_2.10-0.10.0.1.tgz
+sudo tar -xvf kafka_2.10-0.10.0.1.tgz
 
 sudo vi config/server.properties
 delete.topic.enabled = true
-zookeeper.connect = <other_machine_public_ip>:2181
 
 bin/kafka-topics.sh --zookeeper localhost:2181 --delete --topic tweets
+
+------------------------------------------------------------------------
+------------------------ Producer Machine ------------------------
+------------------------------------------------------------------------
+sudo vi config/server.properties
+zookeeper.connect = <consumer_machine_public_ip>:2181
+
+bin/kafka-server-start.sh config/server.properties
+
+------------------------------------------------------------------------
+------------------------ Consumer Machine ------------------------
+------------------------------------------------------------------------
+bin/zookeeper-server-start.sh config/zookeeper.properties
+
+bin/kafka-server-start.sh config/server.properties
