@@ -11,6 +11,12 @@ class ApplicationController < ActionController::Base
     @query = params[:search]
     gon.search = params[:search]
     @hash = Gmaps4rails.build_markers(@tweets) do |tweet, marker|
+              # COURTESY: http://stackoverflow.com/questions/12691330/set-marker-color-when-using-google-maps-for-rails-gem-in-rails
+              marker.picture({
+                url: 'https://maps.google.com/mapfiles/kml/shapes/parking_lot_maps.png',
+                width: 32,
+                height: 32
+              })
               marker.lat tweet.location[1]
               marker.lng tweet.location[0]
               marker.infowindow tweet.text
