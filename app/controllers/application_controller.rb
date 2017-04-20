@@ -13,7 +13,7 @@ class ApplicationController < ActionController::Base
     @hash = Gmaps4rails.build_markers(@tweets) do |tweet, marker|
               # COURTESY: http://stackoverflow.com/questions/12691330/set-marker-color-when-using-google-maps-for-rails-gem-in-rails
               marker.picture({
-                url: 'https://maps.google.com/mapfiles/kml/shapes/parking_lot_maps.png',
+                url: get_sentiment_icon(tweet.sentiment_type),
                 width: 32,
                 height: 32
               })
@@ -21,5 +21,24 @@ class ApplicationController < ActionController::Base
               marker.lng tweet.location[0]
               marker.infowindow tweet.text
             end
+  end
+
+  private
+  def get_sentiment_icon(type)
+    # All facial expression GIFS
+    # http://okik.me/images/forum/bbcode/emo/
+    case type
+    when 'positive'
+      return "http://okik.me/images/forum/bbcode/emo/bigsmile.gif"
+      # return "https://raw.githubusercontent.com/mahnunchik/markerclustererplus/master/images/heart30.png"
+    when 'neutral'
+      return "http://okik.me/images/forum/bbcode/emo/speechless.gif"
+      # return "https://raw.githubusercontent.com/mahnunchik/markerclustererplus/master/images/heart40.png"
+    when 'negative'
+      return "http://okik.me/images/forum/bbcode/emo/devil.gif"
+      # return "http://okik.me/images/forum/bbcode/emo/heart.gif"
+    else
+      return "http://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi.png"
+    end
   end
 end

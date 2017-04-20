@@ -5,6 +5,7 @@ class TweetsController < ApplicationController
   skip_before_filter  :verify_authenticity_token
 
   def create
+    Rails.logger.info(request.raw_post)
     sns_message = JSON.parse(JSON.parse(request.raw_post)["Message"] || "{}")
     tweet = Tweet.new
     tweet_text = sns_message["text"] || ""
@@ -12,6 +13,10 @@ class TweetsController < ApplicationController
     tweet.location = [sns_message["longitude"].to_f, sns_message["latitude"].to_f]
     keywords = tweet_text.split(" ")
     hashtags = keywords.select { |x| x[0] == '#' }.map { |y| y[1..-1] }
+    tweet.keywords = keywords
+    tweet.hashtags = hashtags
+    tweet.sentiment_type = sns_message["type"]
+    tweet.sentiment_value = sns_message["score"]
     tweet.save!
 
     respond_with tweet, location: nil
